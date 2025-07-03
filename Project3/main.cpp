@@ -1,11 +1,22 @@
 #include "gmock/gmock.h"
 #include "device_driver.h"
 
+using namespace testing;
+class MockFlashMemoryDevice : public FlashMemoryDevice
+{
+public:
+	MOCK_METHOD(unsigned char, read, (long address), (override));
+	MOCK_METHOD(void, write, (long address, unsigned char data), (override));
+};
+
 TEST(DeviceDriver, ReadFromHW) {
-	// TODO : replace hardware with a Test Double
-	FlashMemoryDevice* hardware = nullptr;
-	DeviceDriver driver{ hardware };
-	int data = driver.read(0xFF);
+	const int READ_ADDRESS = 0xFF;
+	NiceMock< MockFlashMemoryDevice> mockHardware;
+	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+		.WillRepeatedly(Return(0));
+
+	DeviceDriver driver{ &mockHardware };
+	int data = driver.read(READ_ADDRESS);
 	EXPECT_EQ(0, data);
 }
 
