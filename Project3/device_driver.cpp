@@ -24,7 +24,13 @@ void DeviceDriver::postReadConditionCheck(int result, long address)
 
 void DeviceDriver::write(long address, int data)
 {
-    auto readValue = (int)(m_hardware->read(address));
-    if (readValue != 0xFF) throw WriteFailException();
+    checkWritePrecondition(address);
     m_hardware->write(address, (unsigned char)data);
+}
+
+void DeviceDriver::checkWritePrecondition(long address)
+{
+    const int IS_EMPTY = 0xFF;
+    auto readValue = (int)(m_hardware->read(address));
+    if (readValue != IS_EMPTY) throw WriteFailException();
 }

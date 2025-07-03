@@ -22,7 +22,6 @@ public:
 	NiceMock< MockFlashMemoryDevice> mockHardware;
 	DeviceDriver driver{ &mockHardware };
 	const int READ_ADDRESS = 0xFF;
-	const int WRTE_VALUE = 0x12;
 };
 TEST_F(DeviceDriverFixture, CheckReadCountIsFive) {
 	EXPECT_CALL(mockHardware, read(READ_ADDRESS))

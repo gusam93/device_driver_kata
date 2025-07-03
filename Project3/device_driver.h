@@ -8,6 +8,7 @@ public:
     DeviceDriver(FlashMemoryDevice* hardware);
     int read(long address);
     void write(long address, int data);
+    void checkWritePrecondition(long address);
     void postReadConditionCheck(int result, long address);
 protected:
     FlashMemoryDevice* m_hardware;
