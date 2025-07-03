@@ -12,26 +12,23 @@ private:
 	int data;
 };
 
-
 class DeviceDriverFixture : public Test {
 protected:
 	void SetUp() override {
-
 	}
 public:
 	NiceMock< MockFlashMemoryDevice> mockHardware;
 	DeviceDriver driver{ &mockHardware };
-	const int READ_ADDRESS = 0xFF;
 };
 TEST_F(DeviceDriverFixture, CheckReadCountIsFive) {
-	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+	EXPECT_CALL(mockHardware, read)
 		.Times(5);
 
-	int data = driver.read(READ_ADDRESS);
+	int data = driver.read(0xA);
 	EXPECT_EQ(0, data);
 }
 TEST_F(DeviceDriverFixture, CheckReadException) {
-	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+	EXPECT_CALL(mockHardware, read)
 		.Times(5)
 		.WillOnce(Return(0))
 		.WillOnce(Return(0))
@@ -40,7 +37,7 @@ TEST_F(DeviceDriverFixture, CheckReadException) {
 		.WillOnce(Return(1));
 
 	try {
-		int data = driver.read(READ_ADDRESS);
+		int data = driver.read(0xA);
 		FAIL();
 	}
 	catch (ReadFailException& exception) {
@@ -49,13 +46,13 @@ TEST_F(DeviceDriverFixture, CheckReadException) {
 }
 
 TEST_F(DeviceDriverFixture, CheckReadException2) {
-	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+	EXPECT_CALL(mockHardware, read)
 		.Times(2)
 		.WillOnce(Return(0))
 		.WillOnce(Return(1));
 
 	try {
-		int data = driver.read(READ_ADDRESS);
+		int data = driver.read(0xA);
 		FAIL();
 	}
 	catch (ReadFailException& exception) {
@@ -64,24 +61,26 @@ TEST_F(DeviceDriverFixture, CheckReadException2) {
 }
 
 TEST_F(DeviceDriverFixture, CheckWriteDone) {
-	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+	const int address = 0xB;
+	EXPECT_CALL(mockHardware, read(address))
 		.WillOnce(Return(0xFF))
 		.WillRepeatedly(Return(0x11));
 
-	EXPECT_CALL(mockHardware, write(READ_ADDRESS, 0x11))
+	EXPECT_CALL(mockHardware, write(address, 0x11))
 		.WillOnce(Return());
 
-	driver.write(READ_ADDRESS, 0x11);
-	auto data = driver.read(READ_ADDRESS);
+	driver.write(address, 0x11);
+	auto data = driver.read(address);
 	EXPECT_EQ(0x11, data);
 }
 
 TEST_F(DeviceDriverFixture, CheckWriteFailException) {
-	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+	const int address = 0xC;
+	EXPECT_CALL(mockHardware, read(address))
 		.WillOnce(Return(0x0));
 
 	try {
-		driver.write(READ_ADDRESS, 0x11);
+		driver.write(address, 0x11);
 		FAIL();
 	}
 	catch (WriteFailException& exception) {
