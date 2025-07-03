@@ -76,6 +76,19 @@ TEST_F(DeviceDriverFixture, CheckWriteDone) {
 	auto data = driver.read(READ_ADDRESS);
 	EXPECT_EQ(0x11, data);
 }
+
+TEST_F(DeviceDriverFixture, CheckWriteFailException) {
+	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+		.WillOnce(Return(0x0));
+
+	try {
+		driver.write(READ_ADDRESS, 0x11);
+		FAIL();
+	}
+	catch (WriteFailException& exception) {
+		EXPECT_EQ(string{ exception.what() }, string{ "Already written" });
+	}
+}
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
