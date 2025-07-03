@@ -7,7 +7,6 @@ DeviceDriver::DeviceDriver(FlashMemoryDevice* hardware) : m_hardware(hardware)
 int DeviceDriver::read(long address)
 {
     auto result = (int)(m_hardware->read(address));
-    bool isDifferent = false;
     postReadConditionCheck(result, address);
     return result;
 }
