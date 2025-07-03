@@ -9,16 +9,18 @@ public:
 	MOCK_METHOD(void, write, (long address, unsigned char data), (override));
 };
 
-TEST(DeviceDriver, ReadFromHW) {
+TEST(DeviceDriver, CheckReadCountIsFive) {
 	const int READ_ADDRESS = 0xFF;
 	NiceMock< MockFlashMemoryDevice> mockHardware;
 	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
-		.WillRepeatedly(Return(0));
+		.Times(5);
 
 	DeviceDriver driver{ &mockHardware };
 	int data = driver.read(READ_ADDRESS);
 	EXPECT_EQ(0, data);
 }
+
+
 
 int main() {
 	::testing::InitGoogleMock();
