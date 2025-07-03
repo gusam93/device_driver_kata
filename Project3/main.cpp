@@ -10,19 +10,25 @@ public:
 	MOCK_METHOD(void, write, (long address, unsigned char data), (override));
 };
 
-TEST(DeviceDriver, CheckReadCountIsFive) {
-	const int READ_ADDRESS = 0xFF;
+
+class DeviceDriverFixture : public Test {
+protected:
+	void SetUp() override {
+
+	}
+public:
 	NiceMock< MockFlashMemoryDevice> mockHardware;
+	DeviceDriver driver{ &mockHardware };
+	const int READ_ADDRESS = 0xFF;
+};
+TEST_F(DeviceDriverFixture, CheckReadCountIsFive) {
 	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
 		.Times(5);
 
-	DeviceDriver driver{ &mockHardware };
 	int data = driver.read(READ_ADDRESS);
 	EXPECT_EQ(0, data);
 }
-TEST(DeviceDriver, CheckReadException) {
-	const int READ_ADDRESS = 0xFF;
-	NiceMock< MockFlashMemoryDevice> mockHardware;
+TEST_F(DeviceDriverFixture, CheckReadException) {
 	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
 		.Times(5)
 		.WillOnce(Return(0))
@@ -31,7 +37,6 @@ TEST(DeviceDriver, CheckReadException) {
 		.WillOnce(Return(0))
 		.WillOnce(Return(1));
 
-	DeviceDriver driver{ &mockHardware };
 	try {
 		int data = driver.read(READ_ADDRESS);
 		FAIL();
@@ -40,8 +45,6 @@ TEST(DeviceDriver, CheckReadException) {
 		EXPECT_EQ(string{ exception.what() }, string{ "Read value is different" });
 	}
 }
-
-
 
 int main() {
 	::testing::InitGoogleMock();
