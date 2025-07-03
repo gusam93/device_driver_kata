@@ -24,6 +24,6 @@ void DeviceDriver::postReadConditionCheck(int result, long address)
 
 void DeviceDriver::write(long address, int data)
 {
-    // TODO: implement this method
+    auto readValue = (int)(m_hardware->read(address));
     m_hardware->write(address, (unsigned char)data);
 }
