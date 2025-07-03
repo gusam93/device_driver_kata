@@ -1,5 +1,4 @@
 #include "device_driver.h"
-#include <stdexcept>
 
 DeviceDriver::DeviceDriver(FlashMemoryDevice* hardware) : m_hardware(hardware)
 {
@@ -7,13 +6,16 @@ DeviceDriver::DeviceDriver(FlashMemoryDevice* hardware) : m_hardware(hardware)
 
 int DeviceDriver::read(long address)
 {
-    // TODO: implement this method properly
-    auto result = (int)(m_hardware->read(address));
-    result = (int)(m_hardware->read(address));
-    result = (int)(m_hardware->read(address));
-    result = (int)(m_hardware->read(address));
-    result = (int)(m_hardware->read(address));
-    return result;
+    auto firstReadValue = (int)(m_hardware->read(address));
+    const int MAX_REPEAT_CNT = 5 - 1;
+    for (int repeatCnt = 0; repeatCnt < 4; repeatCnt++) {
+        auto nextReadValue = (int)(m_hardware->read(address));
+        if (firstReadValue != nextReadValue) {
+            throw ReadFailException();
+        }
+
+    }
+    return firstReadValue;
 }
 
 void DeviceDriver::write(long address, int data)
