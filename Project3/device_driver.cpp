@@ -6,16 +6,20 @@ DeviceDriver::DeviceDriver(FlashMemoryDevice* hardware) : m_hardware(hardware)
 
 int DeviceDriver::read(long address)
 {
-    auto firstReadValue = (int)(m_hardware->read(address));
-    const int MAX_REPEAT_CNT = 5 - 1;
-    for (int repeatCnt = 0; repeatCnt < 4; repeatCnt++) {
-        auto nextReadValue = (int)(m_hardware->read(address));
-        if (firstReadValue != nextReadValue) {
-            throw ReadFailException();
-        }
+    auto result = (int)(m_hardware->read(address));
+    bool isDifferent = false;
+    postReadConditionCheck(result, address);
+    return result;
+}
 
+void DeviceDriver::postReadConditionCheck(int result, long address)
+{
+    const int REMAIN_REPEAT_CNT = 4;
+    bool isDiffernet = false;
+    for (int repeatCnt = 0; repeatCnt < REMAIN_REPEAT_CNT; repeatCnt++) {
+        auto currentResult = (int)(m_hardware->read(address));
+        if (result != currentResult) throw ReadFailException();
     }
-    return firstReadValue;
 }
 
 void DeviceDriver::write(long address, int data)

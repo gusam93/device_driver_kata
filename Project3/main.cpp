@@ -46,6 +46,20 @@ TEST_F(DeviceDriverFixture, CheckReadException) {
 	}
 }
 
+TEST_F(DeviceDriverFixture, CheckReadException2) {
+	EXPECT_CALL(mockHardware, read(READ_ADDRESS))
+		.Times(2)
+		.WillOnce(Return(0))
+		.WillOnce(Return(1));
+
+	try {
+		int data = driver.read(READ_ADDRESS);
+		FAIL();
+	}
+	catch (ReadFailException& exception) {
+		EXPECT_EQ(string{ exception.what() }, string{ "Read value is different" });
+	}
+}
 int main() {
 	::testing::InitGoogleMock();
 	return RUN_ALL_TESTS();
